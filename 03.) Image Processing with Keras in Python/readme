@@ -338,3 +338,250 @@ What is the size of the output for an input of size 256 by 256, with a kernel of
 
 
 128
+
+
+
+Creating a deep learning network
+A deep convolutional neural network is a network that has more than one layer. Each layer in a deep network receives its input from the preceding layer, with the very first layer receiving its input from the images used as training or test data.
+
+Here, you will create a network that has two convolutional layers.
+
+Instructions
+100 XP
+The first convolutional layer is the input layer of the network. This should have 15 units with kernels of 2 by 2 pixels. It should have a 'relu' activation function. It can use the variables img_rows and img_cols to define its input_shape.
+The second convolutional layer receives its inputs from t
+
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, Flatten
+
+model = Sequential()
+
+# Add a convolutional layer (15 units)
+model.add(Conv2D(15, kernel_size=2, activation='relu', 
+              input_shape=(img_rows, img_cols, 1) 
+              ))
+
+
+# Add another convolutional layer (5 units)
+model.add(Conv2D(5, kernel_size=2, activation='relu', 
+              input_shape=(img_rows, img_cols, 1) 
+              ))
+
+# Flatten and feed to output layer
+model.add(Flatten())
+model.add(Dense(3, activation='softmax'))
+
+
+Train a deep CNN to classify clothing images
+Training a deep learning model is very similar to training a single layer network. Once the model is constructed (as you have done in the previous exercise), the model needs to be compiled with the right set of parameters. Then, the model is fit by providing it with training data, as well as training labels. After training is done, the model can be evaluated on test data.
+
+The model you built in the previous exercise is available in your workspace.
+
+Instructions
+100 XP
+Compile the model to use the categorical cross-entropy loss function and the Adam optimizer.
+Train the network with train_data for 3 epochs with batches of 10 images each.
+Use randomly selected 20% of the training data as validation data during training.
+Evaluate the model with test_data, use a batch size of 10.
+
+# Compile model
+model.compile(optimizer='adam', 
+              loss='categorical_crossentropy', 
+              metrics=['accuracy'])
+
+# Fit the model to training data 
+model.fit(train_data, train_labels, 
+          validation_split=0.2, 
+          epochs=3, batch_size=10)
+
+# Evaluate the model on test data
+model.evaluate(test_data, test_labels, batch_size=10)
+
+What is special about a deep network?
+Networks with more convolution layers are called "deep" networks, and they may have more power to fit complex data, because of their ability to create hierarchical representations of the data that they fit.
+
+What is a major difference between a deep CNN and a CNN with only one convolutional layer?
+
+A deep network requires more data and more computation to fit.
+
+
+How many parameters in a CNN?
+We need to know how many parameters a CNN has, so we can adjust the model architecture, to reduce this number or shift parameters from one part of the network to another. How many parameters would a network have if its inputs are images with 28-by-28 pixels, there is one convolutional layer with 10 units kernels of 3-by-3 pixels, using zero padding (input has the same size as the output), and one densely connected layer with 2 units?
+
+15,782
+
+How many parameters in a deep CNN?
+In this exercise, you will use Keras to calculate the total number of parameters along with the number of parameters in each layer of the network.
+
+We have already provided code that builds a deep CNN for you.
+
+Instructions
+100 XP
+Summarize the network, providing a count of the number of parameters.
+
+
+Write your own pooling operation
+As we have seen before, CNNs can have a lot of parameters. Pooling layers are often added between the convolutional layers of a neural network to summarize their outputs in a condensed manner, and reduce the number of parameters in the next layer in the network. This can help us if we want to train the network more rapidly, or if we don't have enough data to learn a very large number of parameters.
+
+A pooling layer can be described as a particular kind of convolution. For every window in the input it finds the maximal pixel value and passes only this pixel through. In this exercise, you will write your own max pooling operation, based on the code that you previously used to write a two-dimensional convolution operation.
+
+Instructions
+100 XP
+Index into the input array (im) and select the right window.
+Find the maximum in this window.
+Allocate this into the right entry in the output array (result).
+
+# Result placeholder
+result = np.zeros((im.shape[0]//2, im.shape[1]//2))
+
+# Pooling operation
+for ii in range(result.shape[0]):
+    for jj in range(result.shape[1]):
+        result[ii, jj] = np.max(im[ii*2:ii*2+2 , jj*2:jj*2+2])
+        
+        
+ Keras pooling layers
+Keras implements a pooling operation as a layer that can be added to CNNs between other layers. In this exercise, you will construct a convolutional neural network similar to the one you have constructed before:
+
+Convolution => Convolution => Flatten => Dense
+
+However, you will also add a pooling layer. The architecture will add a single max-pooling layer between the convolutional layer and the dense layer with a pooling of 2x2:
+
+Convolution => Max pooling => Convolution => Flatten => Dense
+
+A Sequential model along with Dense, Conv2D, Flatten, and MaxPool2D objects are available in your workspace.
+
+Instructions
+100 XP
+Add an input convolutional layer (15 units, kernel size of 2, relu activation).
+Add a maximum pooling operation (pooling over windows of size 2x2).
+Add another convolution layer (5 units, kernel size of 2, relu activation).
+Flatten the output of the second convolution and add a Dense layer for output (3 categories, softmax activation).
+
+# Add a convolutional layer
+model.add(Conv2D(15, kernel_size=2, activation='relu', 
+                 input_shape=(img_rows, img_cols, 1)))
+
+# Add a pooling operation
+model.add(MaxPool2D(2))
+
+# Add another convolutional layer
+model.add(Conv2D(5, kernel_size=2, activation='relu'))
+
+# Flatten and feed to output layer
+model.add(Flatten())
+model.add(Dense(3, activation='softmax'))
+model.summary()
+
+
+Train a deep CNN with pooling to classify images
+Training a CNN with pooling layers is very similar to training of the deep networks that y have seen before. Once the network is constructed (as you did in the previous exercise), the model needs to be appropriately compiled, and then training data needs to be provided, together with the other arguments that control the fitting procedure.
+
+The following model from the previous exercise is available in your workspace:
+
+Convolution => Max pooling => Convolution => Flatten => Dense
+
+Instructions
+100 XP
+Compile this model to use the categorical cross-entropy loss function and the Adam optimizer.
+Train the model for 3 epochs with batches of size 10.
+Use 20% of the data as validation data.
+Evaluate the model on test_data with test_labels (also batches of size 10).
+
+# Compile model
+model.compile(optimizer='adam', 
+              loss='categorical_crossentropy', 
+              metrics=['accuracy'])
+
+# Fit the model to training data 
+model.fit(train_data, train_labels, 
+          validation_split=0.2, 
+          epochs=3, batch_size=10)
+
+# Evaluate the model on test data
+model.evaluate(test_data, test_labels, batch_size=10)
+
+
+Plot the learning curves
+During learning, the model will store the loss function evaluated in each epoch. Looking at the learning curves can tell us quite a bit about the learning process. In this exercise, you will plot the learning and validation loss curves for a model that you will train.
+
+Instructions
+100 XP
+Fit the model to the training data (train_data).
+Use a validation split of 20%, 3 epochs and batch size of 10.
+Plot the training loss.
+Plot the validation loss.
+
+
+Using stored weights to predict in a test set
+Model weights stored in an hdf5 file can be reused to populate an untrained model. Once the weights are loaded into this model, it behaves just like a model that has been trained to reach these weights. For example, you can use this model to make predictions from an unseen data set (e.g. test_data).
+
+Instructions
+100 XP
+Load the weights from a file called 'weights.hdf5'.
+Predict the classes of the first three images from test_data.
+
+# Load the weights from file
+model.load_weights('weights.hdf5')
+# Predict from the first three images in the test data
+model.predict(test_data[:3]) 
+
+# Add a convolutional layer
+model.add(Conv2D(15, kernel_size=2, activation='relu', 
+                 input_shape=(img_rows, img_cols, 1)))
+
+# Add a dropout layer
+model.add(Dropout(0.2))
+
+# Add another convolutional layer
+model.add(Conv2D(5, kernel_size=2, activation='relu'))
+
+# Flatten and feed to output layer
+model.add(Flatten())
+model.add(Dense(3, activation='softmax'))
+
+Add batch normalization to your network
+Batch normalization is another form of regularization that rescales the outputs of a layer to make sure that they have mean 0 and standard deviation 1. In this exercise, we will add batch normalization to the convolutional neural network that we have used in previous exercises:
+
+Convolution (15 units, kernel size 2, 'relu' activation)
+Batch normalization
+Convolution (5 unites, kernel size 2, 'relu' activation)
+Flatten
+Dense (3 units, 'softmax' activation)
+A Sequential model along with Dense, Conv2D, Flatten, and Dropout objects are available in your workspace.
+
+Instructions
+100 XP
+Add the first convolutional layer. You can use the img_rows and img_cols objects available in your workspace to define the input_shape of this layer.
+Add batch normalization applied to the outputs of the first layer.
+
+# Load the weights into the model
+model.load_weights('weights.hdf5')
+
+# Get the first convolutional layer from the model
+c1 = model.layers[0]
+
+# Get the weights of the first convolutional layer
+weights1 = c1.get_weights()
+
+# Pull out the first channel of the first kernel in the first layer
+kernel = weights1[0][...,0, 0]
+print(kernel)
+
+Shape of the weights
+A Keras neural network stores its layers in a list called model.layers. For the convolutional layers, you can get the weights using the .get_weights() method. This returns a list, and the first item in this list is an array representing the weights of the convolutional kernels. If the shape of this array is (2, 2, 1, 5), what does the first number (2) represent?
+
+
+The kernel size is 2 by 2.
+
+Visualizing kernel responses
+One of the ways to interpret the weights of a neural network is to see how the kernels stored in these weights "see" the world. That is, what properties of an image are emphasized by this kernel. In this exercise, we will do that by convolving an image with the kernel and visualizing the result. Given images in the test_data variable, a function called extract_kernel() that extracts a kernel from the provided network, and the function called convolution() that we defined in the first chapter, extract the kernel, load the data from a file and visualize it with matplotlib.
+
+A deep CNN model, a function convolution(), along with the kernel you extracted in an earlier exercise is available in your workspace.
+
+Ready to take your deep learning to the next level? Check out Advanced Deep Learning with Keras to see how the Keras functional API lets you build domain knowledge to solve new types of problems.
+
+Instructions
+100 XP
+Use the convolution() function to convolve the extracted kernel with the first channel of the fourth item in the image array.
+Visualize the resulting convolution with imshow().
